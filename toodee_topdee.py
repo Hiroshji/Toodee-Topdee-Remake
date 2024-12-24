@@ -27,7 +27,13 @@ CHARACTER_SIZE = 40
 TOODEE_POS = [SCREEN_WIDTH // 4, SCREEN_HEIGHT // 2]
 TOPDEE_POS = [SCREEN_WIDTH * 3 // 4, SCREEN_HEIGHT // 2]
 
+# Movement flags
+TOODEE_GRAVITY = True  # Toodee affected by gravity (platformer mode)
+TOPDEE_GRAVITY = False  # Topdee ignores gravity (top-down mode)
+
 SPEED = 5
+GRAVITY = 2
+JUMP_SPEED = -40
 
 # Current character (0 for Toodee, 1 for Topdee)
 current_character = 0
@@ -36,6 +42,29 @@ def draw_character(screen, color, pos, highlight):
     pygame.draw.rect(screen, color, (*pos, CHARACTER_SIZE, CHARACTER_SIZE))
     if highlight:
         pygame.draw.rect(screen, BLACK, (*pos, CHARACTER_SIZE, CHARACTER_SIZE), 3)
+
+def apply_gravity(pos):
+    if pos[1] + CHARACTER_SIZE < SCREEN_HEIGHT:
+        pos[1] += GRAVITY
+
+def handle_toodee_controls(keys, pos):
+    if keys[pygame.K_UP]:
+        if pos[1] + CHARACTER_SIZE >= SCREEN_HEIGHT:  # Allow jumping only when on the ground
+            pos[1] += JUMP_SPEED
+    if keys[pygame.K_LEFT]:
+        pos[0] = max(0, pos[0] - SPEED)
+    if keys[pygame.K_RIGHT]:
+        pos[0] = min(SCREEN_WIDTH - CHARACTER_SIZE, pos[0] + SPEED)
+
+def handle_topdee_controls(keys, pos):
+    if keys[pygame.K_UP]:
+        pos[1] = max(0, pos[1] - SPEED)
+    if keys[pygame.K_DOWN]:
+        pos[1] = min(SCREEN_HEIGHT - CHARACTER_SIZE, pos[1] + SPEED)
+    if keys[pygame.K_LEFT]:
+        pos[0] = max(0, pos[0] - SPEED)
+    if keys[pygame.K_RIGHT]:
+        pos[0] = min(SCREEN_WIDTH - CHARACTER_SIZE, pos[0] + SPEED)
 
 # Main game loop
 running = True
@@ -52,25 +81,16 @@ while running:
     # Handle movement
     keys = pygame.key.get_pressed()
 
-    if current_character == 0:  # Toodee's controls
-        if keys[pygame.K_UP]:
-            TOODEE_POS[1] = max(0, TOODEE_POS[1] - SPEED)
-        if keys[pygame.K_DOWN]:
-            TOODEE_POS[1] = min(SCREEN_HEIGHT - CHARACTER_SIZE, TOODEE_POS[1] + SPEED)
-        if keys[pygame.K_LEFT]:
-            TOODEE_POS[0] = max(0, TOODEE_POS[0] - SPEED)
-        if keys[pygame.K_RIGHT]:
-            TOODEE_POS[0] = min(SCREEN_WIDTH - CHARACTER_SIZE, TOODEE_POS[0] + SPEED)
+    if current_character == 0:  # Toodee's controls (platformer)
+        handle_toodee_controls(keys, TOODEE_POS)
+        if TOODEE_GRAVITY:
+            apply_gravity(TOODEE_POS)
 
-    elif current_character == 1:  # Topdee's controls
-        if keys[pygame.K_w]:
-            TOPDEE_POS[1] = max(0, TOPDEE_POS[1] - SPEED)
-        if keys[pygame.K_s]:
-            TOPDEE_POS[1] = min(SCREEN_HEIGHT - CHARACTER_SIZE, TOPDEE_POS[1] + SPEED)
-        if keys[pygame.K_a]:
-            TOPDEE_POS[0] = max(0, TOPDEE_POS[0] - SPEED)
-        if keys[pygame.K_d]:
-            TOPDEE_POS[0] = min(SCREEN_WIDTH - CHARACTER_SIZE, TOPDEE_POS[0] + SPEED)
+    elif current_character == 1:  # Topdee's controls (top-down)
+        handle_topdee_controls(keys, TOPDEE_POS)
+
+    # Ensure Toodee doesn't fall below the screen
+    TOODEE_POS[1] = min(SCREEN_HEIGHT - CHARACTER_SIZE, TOODEE_POS[1])
 
     # Clear the screen
     screen.fill(WHITE)
