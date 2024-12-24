@@ -10,7 +10,7 @@ SCREEN_HEIGHT = 600
 
 # Colors
 WHITE = (255, 255, 255)
-BLACK = (0, 0, 0)
+BLACK = (0, 0, 0) # outline color
 BLUE = (0, 0, 255)
 RED = (255, 0, 0)
 
@@ -57,13 +57,13 @@ def handle_toodee_controls(keys, pos):
         pos[0] = min(SCREEN_WIDTH - CHARACTER_SIZE, pos[0] + SPEED)
 
 def handle_topdee_controls(keys, pos):
-    if keys[pygame.K_UP]:
+    if keys[pygame.K_w]:
         pos[1] = max(0, pos[1] - SPEED)
-    if keys[pygame.K_DOWN]:
+    if keys[pygame.K_s]:
         pos[1] = min(SCREEN_HEIGHT - CHARACTER_SIZE, pos[1] + SPEED)
-    if keys[pygame.K_LEFT]:
+    if keys[pygame.K_a]:
         pos[0] = max(0, pos[0] - SPEED)
-    if keys[pygame.K_RIGHT]:
+    if keys[pygame.K_d]:
         pos[0] = min(SCREEN_WIDTH - CHARACTER_SIZE, pos[0] + SPEED)
 
 # Main game loop
