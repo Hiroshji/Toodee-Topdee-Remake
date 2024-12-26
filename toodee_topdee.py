@@ -23,7 +23,7 @@ clock = pygame.time.Clock()
 FPS = 60
 
 # Character properties
-CHARACTER_SIZE = 40
+CHARACTER_SIZE = 50
 TOODEE_POS = [SCREEN_WIDTH // 4, SCREEN_HEIGHT // 2]
 TOPDEE_POS = [SCREEN_WIDTH * 3 // 4, SCREEN_HEIGHT // 2]
 
@@ -32,8 +32,11 @@ TOODEE_GRAVITY = True  # Toodee affected by gravity (platformer mode)
 TOPDEE_GRAVITY = False  # Topdee ignores gravity (top-down mode)
 
 SPEED = 5
-GRAVITY = 2
-JUMP_SPEED = -40
+GRAVITY = 0.5
+JUMP_SPEED = -10
+
+# Initialize vertical velocity
+vertical_velocity = 0
 
 # Current character (0 for Toodee, 1 for Topdee)
 current_character = 0
@@ -48,9 +51,21 @@ def apply_gravity(pos):
         pos[1] += GRAVITY
 
 def handle_toodee_controls(keys, pos):
+    global vertical_velocity
+
     if keys[pygame.K_UP]:
         if pos[1] + CHARACTER_SIZE >= SCREEN_HEIGHT:  # Allow jumping only when on the ground
-            pos[1] += JUMP_SPEED
+            vertical_velocity = JUMP_SPEED
+
+    # Apply gravity
+    vertical_velocity += GRAVITY
+    pos[1] += vertical_velocity
+
+    # Ensure Toodee doesn't fall through the ground
+    if pos[1] + CHARACTER_SIZE >= SCREEN_HEIGHT:
+        pos[1] = SCREEN_HEIGHT - CHARACTER_SIZE
+        vertical_velocity = 0
+
     if keys[pygame.K_LEFT]:
         pos[0] = max(0, pos[0] - SPEED)
     if keys[pygame.K_RIGHT]:
